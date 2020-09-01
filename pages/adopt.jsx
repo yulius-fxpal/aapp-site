@@ -1,40 +1,47 @@
 import React, { Component } from 'react';
 import uuid from 'react-uuid';
 import Link from 'next/link';
+import { stateCounties } from '../data/stateCounties';
 
 export default class Adopt extends Component {
   static makeLIs(item) {
     return (
-      <option key={uuid()} value={item.id}>
-        {item.name}
+      <option key={uuid()} value={item}>
+        {item}
       </option>
     );
   }
 
   constructor(props) {
     super(props);
+    this.handleStateChange = this.handleStateChange.bind(this);
     this.state = {
+      currentState: '',
       states: [],
       counties: []
     };
   }
 
   componentDidMount() {
+    const stateList = Object.keys(stateCounties).map((k) => (k));
+    const countyList = stateCounties[stateList[0]].map((k) => (k));
     this.setState({
-      states: [
-        { id: 'CA', name: 'CALIFORNIA' },
-        { id: 'FL', name: 'FLORIDA' },
-        { id: 'TX', name: 'TEXAS' }
-      ],
-      counties: [
-        { name: 'San Francisco' },
-        { name: 'Los Angeles' }
-      ]
+      currentState: stateList[0],
+      states: stateList,
+      counties: countyList
+    });
+  }
+
+  handleStateChange = (event) => {
+    const countyList = stateCounties[event.target.value].map((k) => (k));
+    this.setState({
+      currentState: event.target.value,
+      counties: countyList
     });
   }
 
   render() {
-    const { states, counties } = this.state;
+    const { currentState, states, counties } = this.state;
     const statesList = states.length > 0 && states.map(Adopt.makeLIs);
     const countyList = counties.length > 0 && counties.map(Adopt.makeLIs);
     return (
@@ -47,7 +54,7 @@ export default class Adopt extends Component {
                 <div className='md:w-1/6 text-right'>
                   <Link href='/'>
                     <button type='submit' className='bg-white active:bg-red-400 hover:bg-blue-700 hover:text-white focus:outline-none focus:shadow-outline text-black py-2 px-4 w-1/1 rounded-full mr-4'>
-                      <img inline src='/img/star.svg' alt='Home button' style={{ float: 'none', width: '300px' }} />
+                      <img src='/img/star.svg' alt='Home button' style={{ float: 'none', width: '300px' }} />
                       Main
                     </button>
                   </Link>
@@ -55,7 +62,11 @@ export default class Adopt extends Component {
               </div>
               <div className='md:flex md:items-center mb-6'>
                 <div className='md:w-1/4' />
-                <select className='md:w-1/2 bg-white hover:bg-blue-700 hover:text-white focus:outline-none focus:shadow-outline text-black py-2 px-4 w-1/3 rounded-full'>
+                <select
+                  onChange={this.handleStateChange}
+                  value={currentState}
+                  className='md:w-1/2 bg-white hover:bg-blue-700 hover:text-white focus:outline-none focus:shadow-outline text-black py-2 px-4 w-1/3 rounded-full'
+                >
                   {statesList}
                 </select>
               </div>
